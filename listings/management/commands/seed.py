@@ -2,6 +2,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from listings.models import Listing, Booking, Review
+from django_seed import Seed
 from datetime import date, timedelta
 import random
 
@@ -15,37 +16,9 @@ class Command(BaseCommand):
         parser.add_argument('--listings', type=int, default=10, help='Number of listings to create')
 
     def handle(self, *args, **options):
+        seeder = Seed.seeder()
         users_count = options['users']
         listings_count = options['listings']
-
-        # Sample data for realistic content
-        sample_titles = [
-            "Cozy Beachfront Villa", "Modern Downtown Apartment", "Charming Mountain Cabin",
-            "Luxury City Penthouse", "Rustic Country House", "Stylish Urban Loft",
-            "Traditional Family Home", "Contemporary Studio", "Historic Townhouse",
-            "Seaside Bungalow", "Garden View Apartment", "Skyline Penthouse"
-        ]
-        
-        sample_descriptions = [
-            "A beautiful and comfortable space perfect for your vacation.",
-            "Modern amenities with stunning views and convenient location.",
-            "Charming property with character and all the comforts of home.",
-            "Luxury accommodation with premium facilities and services.",
-            "Peaceful retreat in a prime location with excellent amenities.",
-            "Stylish and contemporary space designed for relaxation and comfort."
-        ]
-        
-        sample_addresses = [
-            "123 Ocean Drive, Miami, FL 33139", "456 Main Street, New York, NY 10001",
-            "789 Mountain View Road, Denver, CO 80202", "321 Park Avenue, Los Angeles, CA 90210",
-            "654 Sunset Boulevard, San Francisco, CA 94102", "987 Broadway, Seattle, WA 98101"
-        ]
-        
-        sample_comments = [
-            "Great place to stay, highly recommended!", "Perfect location and excellent amenities.",
-            "Clean and comfortable, would definitely stay again.", "Beautiful property with amazing views.",
-            "Excellent host and wonderful accommodation.", "Fantastic experience, exceeded expectations."
-        ]
 
         # create a few users if not present
         existing_users = User.objects.count()
@@ -61,21 +34,23 @@ class Command(BaseCommand):
         users = list(User.objects.all())
 
         # seed listings
-        for i in range(listings_count):
+        def create_listing():
             host = random.choice(users)
-            title = random.choice(sample_titles) + f" #{i+1}"
-            description = random.choice(sample_descriptions)
-            address = random.choice(sample_addresses)
+            title = seeder.faker.sentence(nb_words=4)
+            description = seeder.faker.paragraph(nb_sentences=3)
+            address = seeder.faker.address()
             price = round(random.uniform(25.0, 500.0), 2)
-            
-            listing = Listing.objects.create(
-                title=title,
-                description=description,
-                address=address,
-                host=host,
-                price_per_night=price
-            )
-            
+            return {
+                'title': title,
+                'description': description,
+                'address': address,
+                'host': host,
+                'price_per_night': price
+            }
+
+        for _ in range(listings_count):
+            data = create_listing()
+            listing = Listing.objects.create(**data)
             # add bookings and reviews
             # create 0-3 bookings
             for _ in range(random.randint(0, 3)):
@@ -92,7 +67,6 @@ class Command(BaseCommand):
                     total_price=total_price,
                     status=random.choice([Booking.STATUS_PENDING, Booking.STATUS_CONFIRMED, Booking.STATUS_CANCELED])
                 )
-            
             # create 0-5 reviews
             for _ in range(random.randint(0, 5)):
                 user = random.choice(users)
@@ -100,7 +74,7 @@ class Command(BaseCommand):
                     listing=listing,
                     user=user,
                     rating=random.randint(1, 5),
-                    comment=random.choice(sample_comments)
+                    comment=seeder.faker.sentence(nb_words=10)
                 )
 
         self.stdout.write(self.style.SUCCESS(f"Seeded {listings_count} listings with bookings and reviews."))
