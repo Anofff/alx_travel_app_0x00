@@ -45,27 +45,32 @@ git clone https://github.com/Anofff/alx_travel_app_0x00.git
 cd alx_travel_app_0x00
 ```
 
-2. Install dependencies:
+2. Navigate to the Django project directory:
+```bash
+cd alx_travel_app
+```
+
+3. Install dependencies:
 ```bash
 pip install django djangorestframework django-seed psycopg2-binary
 ```
 
-3. Run migrations:
+4. Run migrations:
 ```bash
 python manage.py migrate
 ```
 
-4. Create superuser:
+5. Create superuser:
 ```bash
 python manage.py createsuperuser
 ```
 
-5. Seed the database:
+6. Seed the database:
 ```bash
 python manage.py seed
 ```
 
-6. Run the development server:
+7. Run the development server:
 ```bash
 python manage.py runserver
 ```
@@ -75,6 +80,9 @@ python manage.py runserver
 The project includes a management command to populate the database with sample data:
 
 ```bash
+# Make sure you're in the alx_travel_app directory first
+cd alx_travel_app
+
 # Default: 5 users, 10 listings
 python manage.py seed
 
@@ -102,17 +110,28 @@ Access the Django admin interface at `http://localhost:8000/admin/` to manage:
 
 ```
 alx_travel_app_0x00/
-├── alx_travel_app/          # Django project settings
-├── listings/                # Main app
-│   ├── models.py           # Database models
-│   ├── serializers.py      # API serializers
-│   ├── views.py            # API views
-│   ├── urls.py             # URL routing
-│   └── management/
-│       └── commands/
-│           └── seed.py     # Database seeding command
-├── manage.py               # Django management script
-└── README.md              # This file
+├── alx_travel_app/          # Main Django project directory
+│   ├── alx_travel_app/      # Django project settings
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   ├── wsgi.py
+│   │   └── asgi.py
+│   ├── listings/            # Main app
+│   │   ├── models.py       # Database models
+│   │   ├── serializers.py  # API serializers
+│   │   ├── views.py        # API views
+│   │   ├── urls.py         # URL routing
+│   │   ├── admin.py        # Admin configuration
+│   │   ├── apps.py         # App configuration
+│   │   ├── tests.py        # Test cases
+│   │   ├── migrations/     # Database migrations
+│   │   └── management/
+│   │       └── commands/
+│   │           └── seed.py # Database seeding command
+│   ├── manage.py           # Django management script
+│   └── db.sqlite3          # SQLite database
+└── README.md               # This file
 ```
 
 ## Contributing
